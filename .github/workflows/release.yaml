@@ -13,6 +13,7 @@ env:
   NDLA_HOME: ${{ github.workspace }}/ndla
   NDLA_DEPLOY: ${{ github.workspace }}/ndla/deploy
   GPG_KEY: ${{ secrets.DEPLOY_BLACKBOX_GPG_KEY_B64 }}
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 jobs:
   release:
     name: Release and push to registry
