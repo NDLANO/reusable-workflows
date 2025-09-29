@@ -37,7 +37,10 @@ runs:
     - name: "Deploy vercel"
       shell: bash
       id: deploy
-      run: echo "DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ inputs.VERCEL_TOKEN }})" >> "$GITHUB_OUTPUT"
+      run: |
+        set -euo pipefail
+        DEPLOYMENT_URL="$(vercel deploy --prebuilt --archive=tgz --token=${{ inputs.VERCEL_TOKEN }})"
+        echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
     - name: Mark success
       uses: actions/github-script@v7
       with:
