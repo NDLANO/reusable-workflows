@@ -106,4 +106,4 @@ jobs:
 
       - name: Do release
         shell: bash
-        run: uv --directory $NDLA_DEPLOY run ndla release ${{ inputs.component }} --update-chart
+        run: uv --directory $NDLA_DEPLOY run ndla release ${{ inputs.component }}
