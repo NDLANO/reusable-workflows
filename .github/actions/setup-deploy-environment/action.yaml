@@ -1,0 +1,109 @@
+name: Setup deploy environment
+description: Sets up the deploy environment to allow running the internal CLI tools.
+inputs:
+  AWS_CLIENT_ID:
+    required: true
+  AWS_CLIENT_SECRET:
+    required: true
+  AWS_ECR_REPO:
+    required: true
+  DOCKER_HUB_USERNAME:
+    required: true
+  DOCKER_HUB_PASSWORD:
+    required: true
+  RELEASE_ROLE:
+    required: true
+  CI_GITHUB_TOKEN:
+    required: true
+  PYTHON_VERSION:
+    required: true
+  UV_VERSION:
+    required: true
+  JAVA_VERSION:
+    required: true
+  TERRAFORM_VERSION:
+    required: true
+  KUBECTL_VERSION:
+    required: true
+  AWS_IAM_AUTHENTICATOR_VERSION:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: NDLANO/deploy
+        token: ${{ inputs.CI_GITHUB_TOKEN }}
+        path: ndla/deploy
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.PYTHON_VERSION }}
+
+    - name: "Install uv"
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ inputs.UV_VERSION }}
+
+    - uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.JAVA_VERSION }}
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ inputs.TERRAFORM_VERSION }}
+
+    - name: Setup ~/bin directory
+      shell: bash
+      run: |
+        mkdir -p /home/runner/bin
+        echo "/home/runner/bin" >> $GITHUB_PATH
+
+    - uses: ndlano/reusable-workflows/.github/actions/setup-ndla-login@main
+      with:
+        AWS_CLIENT_ID: ${{ inputs.AWS_CLIENT_ID }}
+        AWS_CLIENT_SECRET: ${{ inputs.AWS_CLIENT_SECRET }}
+        AWS_ECR_REPO: ${{ inputs.AWS_ECR_REPO }}
+        DOCKER_HUB_PASSWORD: ${{ inputs.DOCKER_HUB_PASSWORD }}
+        DOCKER_HUB_USERNAME: ${{ inputs.DOCKER_HUB_USERNAME }}
+        RELEASE_ROLE: ${{ inputs.RELEASE_ROLE }}
+
+    - name: Install python dependencies
+      shell: bash
+      run: uv --directory $NDLA_DEPLOY sync --locked
+
+    - name: Download blackbox
+      uses: actions/checkout@v3
+      with:
+        repository: StackExchange/blackbox
+        path: blackbox
+
+    - name: Install Blackbox and key
+      shell: bash
+      run: |
+        # Move binaries to path
+        sudo mv blackbox/bin/* /home/runner/bin/
+        echo -n "$GPG_KEY" | base64 --decode | gpg --import
+
+    - name: Install kubectl
+      shell: bash
+      run: |
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "x86_64" ]; then ARCH=amd64; fi
+        if [ "$ARCH" = "aarch64" ]; then ARCH=arm64; fi
+        curl -L https://dl.k8s.io/release/v${{ inputs.KUBECTL_VERSION }}/bin/linux/${ARCH}/kubectl > kubectl
+        sudo mv kubectl /home/runner/bin/kubectl
+        sudo chmod +x /home/runner/bin/kubectl
+        mkdir -p ~/.kube
+
+    - name: Install aws-iam-authenticator
+      shell: bash
+      run: |
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "x86_64" ]; then ARCH=amd64; fi
+        if [ "$ARCH" = "aarch64" ]; then ARCH=arm64; fi
+        sudo curl -L https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${{ inputs.AWS_IAM_AUTHENTICATOR_VERSION }}/aws-iam-authenticator_${{ inputs.AWS_IAM_AUTHENTICATOR_VERSION }}_linux_${ARCH} > aws-iam-authenticator
+        sudo mv aws-iam-authenticator /home/runner/bin/aws-iam-authenticator
+        sudo chmod +x /home/runner/bin/aws-iam-authenticator
