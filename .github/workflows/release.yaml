@@ -21,6 +21,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.CI_AWS_CLIENT_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.CI_AWS_CLIENT_SECRET }}
   AWS_DEFAULT_REGION: eu-west-1
+  OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 permissions:
   contents: read
   packages: read

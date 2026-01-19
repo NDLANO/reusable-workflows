@@ -2,30 +2,43 @@ name: Setup deploy environment
 description: Sets up the deploy environment to allow running the internal CLI tools.
 inputs:
   AWS_CLIENT_ID:
+    description: AWS client ID
     required: true
   AWS_CLIENT_SECRET:
+    description: AWS client secret
     required: true
   AWS_ECR_REPO:
+    description: AWS ECR repository name for docker auth/login.
     required: true
   DOCKER_HUB_USERNAME:
+    description: Docker Hub username used for registry login.
     required: true
   DOCKER_HUB_PASSWORD:
+    description: Docker Hub password or access token used for registry login.
     required: true
   RELEASE_ROLE:
+    description: AWS IAM role name to assume for release operations.
     required: true
   CI_GITHUB_TOKEN:
+    description: GitHub token used to checkout the deploy repository.
     required: true
   PYTHON_VERSION:
+    description: Python version to install via actions/setup-python.
     required: true
   UV_VERSION:
+    description: uv version to install via astral-sh/setup-uv.
     required: true
   JAVA_VERSION:
+    description: Java (Temurin) version to install via actions/setup-java.
     required: true
   TERRAFORM_VERSION:
+    description: Terraform version to install via hashicorp/setup-terraform.
     required: true
   KUBECTL_VERSION:
+    description: kubectl version to download from dl.k8s.io.
     required: true
   AWS_IAM_AUTHENTICATOR_VERSION:
+    description: aws-iam-authenticator version to download from GitHub releases.
     required: true
 
 runs:
