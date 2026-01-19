@@ -120,3 +120,6 @@ runs:
         sudo curl -L https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${{ inputs.AWS_IAM_AUTHENTICATOR_VERSION }}/aws-iam-authenticator_${{ inputs.AWS_IAM_AUTHENTICATOR_VERSION }}_linux_${ARCH} > aws-iam-authenticator
         sudo mv aws-iam-authenticator /home/runner/bin/aws-iam-authenticator
         sudo chmod +x /home/runner/bin/aws-iam-authenticator
+
+    - name: Install 1Password CLI
+      uses: 1password/install-cli-action@v2
