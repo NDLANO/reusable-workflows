@@ -1,16 +1,22 @@
 name: Login to NDLA repositories
 inputs:
   AWS_CLIENT_ID:
+    description: AWS client ID
     required: true
   AWS_CLIENT_SECRET:
+    description: AWS client secret
     required: true
   AWS_ECR_REPO:
+    description: AWS ECR repository name for docker auth/login.
     required: true
   DOCKER_HUB_USERNAME:
+    description: Docker Hub username used for registry login.
     required: true
   DOCKER_HUB_PASSWORD:
+    description: Docker Hub password or access token used for registry login.
     required: true
   RELEASE_ROLE:
+    description: AWS IAM role name to assume for release operations.
     required: true
 
 runs:
