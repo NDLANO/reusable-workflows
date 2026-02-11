@@ -16,7 +16,6 @@ env:
   NDLA_ENVIRONMENT: local
   NDLA_HOME: ${{ github.workspace }}/ndla
   NDLA_DEPLOY: ${{ github.workspace }}/ndla/deploy
-  GPG_KEY: ${{ secrets.DEPLOY_BLACKBOX_GPG_KEY_B64 }}
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
   AWS_ACCESS_KEY_ID: ${{ secrets.CI_AWS_CLIENT_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.CI_AWS_CLIENT_SECRET }}
@@ -33,7 +32,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(inputs['single-runner'] && '{"include":[{"platform":"linux/amd64","runner":"ubuntu-latest"}]}' || '{"include":[{"platform":"linux/amd64","runner":"ubuntu-latest"},{"platform":"linux/arm64","runner":"ubuntu-24.04-arm"}]}') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: ndla/${{ github.event.repository.name }}
 
@@ -46,12 +45,6 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           RELEASE_ROLE: ${{ secrets.CI_RELEASE_ROLE }}
           CI_GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
-          PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}
-          UV_VERSION: ${{ vars.UV_VERSION }}
-          JAVA_VERSION: ${{ vars.JAVA_VERSION }}
-          TERRAFORM_VERSION: ${{ vars.TERRAFORM_VERSION }}
-          KUBECTL_VERSION: ${{ vars.KUBECTL_VERSION }}
-          AWS_IAM_AUTHENTICATOR_VERSION: ${{ vars.AWS_IAM_AUTHENTICATOR_VERSION }}
 
       - name: Build kubernetes config
         run: uv --directory $NDLA_DEPLOY run ndla env kubeconfig test
@@ -92,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: ndla/${{ github.event.repository.name }}
 
@@ -105,12 +98,6 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           RELEASE_ROLE: ${{ secrets.CI_RELEASE_ROLE }}
           CI_GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
-          PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}
-          UV_VERSION: ${{ vars.UV_VERSION }}
-          JAVA_VERSION: ${{ vars.JAVA_VERSION }}
-          TERRAFORM_VERSION: ${{ vars.TERRAFORM_VERSION }}
-          KUBECTL_VERSION: ${{ vars.KUBECTL_VERSION }}
-          AWS_IAM_AUTHENTICATOR_VERSION: ${{ vars.AWS_IAM_AUTHENTICATOR_VERSION }}
 
       - name: Create multi-arch manifest
         shell: bash
