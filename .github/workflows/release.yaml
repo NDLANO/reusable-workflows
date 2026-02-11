@@ -36,7 +36,7 @@ jobs:
         with:
           path: ndla/${{ github.event.repository.name }}
 
-      - uses: ndlano/reusable-workflows/.github/actions/setup-deploy-environment@main
+      - uses: ndlano/reusable-workflows/.github/actions/setup-deploy-environment@feat/mise
         with:
           AWS_CLIENT_ID: ${{ secrets.CI_AWS_CLIENT_ID }}
           AWS_CLIENT_SECRET: ${{ secrets.CI_AWS_CLIENT_SECRET }}
@@ -91,7 +91,7 @@ jobs:
         with:
           path: ndla/${{ github.event.repository.name }}
 
-      - uses: ndlano/reusable-workflows/.github/actions/setup-deploy-environment@main
+      - uses: ndlano/reusable-workflows/.github/actions/setup-deploy-environment@feat/mise
         with:
           AWS_CLIENT_ID: ${{ secrets.CI_AWS_CLIENT_ID }}
           AWS_CLIENT_SECRET: ${{ secrets.CI_AWS_CLIENT_SECRET }}
