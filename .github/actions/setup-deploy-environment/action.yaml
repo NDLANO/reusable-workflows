@@ -31,7 +31,6 @@ runs:
         repository: NDLANO/deploy
         token: ${{ inputs.CI_GITHUB_TOKEN }}
         path: ndla/deploy
-        ref: feat/mise
 
     - shell: bash
       run: ln -s ${{ github.workspace }}/ndla/deploy/mise.toml ${{ github.workspace }}/mise.toml
@@ -40,7 +39,7 @@ runs:
       with:
         working_directory: ${{ github.workspace }}
 
-    - uses: ndlano/reusable-workflows/.github/actions/setup-ndla-login@feat/mise
+    - uses: ndlano/reusable-workflows/.github/actions/setup-ndla-login@main
       with:
         AWS_CLIENT_ID: ${{ inputs.AWS_CLIENT_ID }}
         AWS_CLIENT_SECRET: ${{ inputs.AWS_CLIENT_SECRET }}
