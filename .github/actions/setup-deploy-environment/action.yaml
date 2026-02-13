@@ -22,57 +22,22 @@ inputs:
   CI_GITHUB_TOKEN:
     description: GitHub token used to checkout the deploy repository.
     required: true
-  PYTHON_VERSION:
-    description: Python version to install via actions/setup-python.
-    required: true
-  UV_VERSION:
-    description: uv version to install via astral-sh/setup-uv.
-    required: true
-  JAVA_VERSION:
-    description: Java (Temurin) version to install via actions/setup-java.
-    required: true
-  TERRAFORM_VERSION:
-    description: Terraform version to install via hashicorp/setup-terraform.
-    required: true
-  KUBECTL_VERSION:
-    description: kubectl version to download from dl.k8s.io.
-    required: true
-  AWS_IAM_AUTHENTICATOR_VERSION:
-    description: aws-iam-authenticator version to download from GitHub releases.
-    required: true
 
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         repository: NDLANO/deploy
         token: ${{ inputs.CI_GITHUB_TOKEN }}
         path: ndla/deploy
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ inputs.PYTHON_VERSION }}
+    - shell: bash
+      run: ln -s ${{ github.workspace }}/ndla/deploy/mise.toml ${{ github.workspace }}/mise.toml
 
-    - name: "Install uv"
-      uses: astral-sh/setup-uv@v5
+    - uses: jdx/mise-action@v3
       with:
-        version: ${{ inputs.UV_VERSION }}
-
-    - uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: ${{ inputs.JAVA_VERSION }}
-
-    - uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: ${{ inputs.TERRAFORM_VERSION }}
-
-    - name: Setup ~/bin directory
-      shell: bash
-      run: |
-        mkdir -p /home/runner/bin
-        echo "/home/runner/bin" >> $GITHUB_PATH
+        working_directory: ${{ github.workspace }}
 
     - uses: ndlano/reusable-workflows/.github/actions/setup-ndla-login@main
       with:
@@ -86,40 +51,3 @@ runs:
     - name: Install python dependencies
       shell: bash
       run: uv --directory $NDLA_DEPLOY sync --locked
-
-    - name: Download blackbox
-      uses: actions/checkout@v3
-      with:
-        repository: StackExchange/blackbox
-        path: blackbox
-
-    - name: Install Blackbox and key
-      shell: bash
-      run: |
-        # Move binaries to path
-        sudo mv blackbox/bin/* /home/runner/bin/
-        echo -n "$GPG_KEY" | base64 --decode | gpg --import
-
-    - name: Install kubectl
-      shell: bash
-      run: |
-        ARCH=$(uname -m)
-        if [ "$ARCH" = "x86_64" ]; then ARCH=amd64; fi
-        if [ "$ARCH" = "aarch64" ]; then ARCH=arm64; fi
-        curl -L https://dl.k8s.io/release/v${{ inputs.KUBECTL_VERSION }}/bin/linux/${ARCH}/kubectl > kubectl
-        sudo mv kubectl /home/runner/bin/kubectl
-        sudo chmod +x /home/runner/bin/kubectl
-        mkdir -p ~/.kube
-
-    - name: Install aws-iam-authenticator
-      shell: bash
-      run: |
-        ARCH=$(uname -m)
-        if [ "$ARCH" = "x86_64" ]; then ARCH=amd64; fi
-        if [ "$ARCH" = "aarch64" ]; then ARCH=arm64; fi
-        sudo curl -L https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${{ inputs.AWS_IAM_AUTHENTICATOR_VERSION }}/aws-iam-authenticator_${{ inputs.AWS_IAM_AUTHENTICATOR_VERSION }}_linux_${ARCH} > aws-iam-authenticator
-        sudo mv aws-iam-authenticator /home/runner/bin/aws-iam-authenticator
-        sudo chmod +x /home/runner/bin/aws-iam-authenticator
-
-    - name: Install 1Password CLI
-      uses: 1password/install-cli-action@v2
