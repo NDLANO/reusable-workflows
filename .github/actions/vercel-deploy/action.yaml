@@ -35,9 +35,9 @@ runs:
           await github.rest.repos.createCommitStatus({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            sha: context.sha,
+            sha: context.payload.pull_request?.head?.sha ?? context.sha,
             state: 'pending',
-            context: 'vercel-deploy',
+            context: 'vercel-deploy (${{ inputs.REPO_NAME }})',
             description: 'Deployment in progress'
           })
     - name: "Build vercel"
@@ -59,9 +59,9 @@ runs:
           await github.rest.repos.createCommitStatus({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            sha: context.sha,
+            sha: context.payload.pull_request?.head?.sha ?? context.sha,
             state: 'success',
-            context: 'vercel-deploy',
+            context: 'vercel-deploy (${{ inputs.REPO_NAME }})',
             description: 'Vercel deployed',
             target_url: '${{ steps.deploy.outputs.DEPLOYMENT_URL }}'
           })
@@ -84,9 +84,9 @@ runs:
           await github.rest.repos.createCommitStatus({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            sha: context.sha,
+            sha: context.payload.pull_request?.head?.sha ?? context.sha,
             state: 'success',
-            context: 'vercel-deploy',
+            context: 'vercel-deploy (${{ inputs.REPO_NAME }})',
             description: 'Vercel deployed and aliased',
             target_url: 'https://${{ steps.alias.outputs.ALIAS }}'
           })
@@ -98,8 +98,8 @@ runs:
           await github.rest.repos.createCommitStatus({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            sha: context.sha,
+            sha: context.payload.pull_request?.head?.sha ?? context.sha,
             state: 'failure',
-            context: 'vercel-deploy',
+            context: 'vercel-deploy (${{ inputs.REPO_NAME }})',
             description: 'Deployment failed'
           })
