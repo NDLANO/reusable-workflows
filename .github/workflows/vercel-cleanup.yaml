@@ -1,0 +1,33 @@
+on:
+  workflow_call:
+    inputs:
+      REPO_NAME:
+        description: "The name of the Vercel project. Used to link the project and compute the branch-deployment alias"
+        required: true
+        type: string
+      WORKING_DIRECTORY:
+        description: "Directory (relative to the repo root) to run vercel in. Defaults to the repo root, set this to the project subdirectory when deploying from a monorepo"
+        required: false
+        type: string
+        default: "."
+    secrets:
+      VERCEL_TOKEN:
+        description: "Vercel API token"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  remove-alias:
+    name: Remove Vercel branch-deployment alias
+    if: github.event.pull_request.merged == true && (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ndlano/reusable-workflows/.github/actions/vercel-remove-alias@main
+        with:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          WORKING_DIRECTORY: ${{ inputs.WORKING_DIRECTORY }}

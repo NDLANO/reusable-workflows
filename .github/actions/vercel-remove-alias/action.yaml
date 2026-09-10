@@ -1,0 +1,29 @@
+name: "Vercel Remove Alias"
+description: "Removes the branch-deployment alias from Vercel, e.g. when a pull request is merged"
+inputs:
+  VERCEL_TOKEN:
+    description: "Vercel API token"
+    required: true
+  REPO_NAME:
+    description: "The name of the Vercel project. Used to link the project and compute the branch-deployment alias"
+    required: true
+  WORKING_DIRECTORY:
+    description: "Directory (relative to the repo root) to run vercel in. Defaults to the repo root, set this to the project subdirectory when deploying from a monorepo"
+    required: false
+    default: "."
+runs:
+  using: "composite"
+  steps:
+    - name: "Install Vercel CLI"
+      shell: bash
+      run: npm install --global vercel
+    - name: "Link vercel project"
+      shell: bash
+      working-directory: ${{ inputs.WORKING_DIRECTORY }}
+      run: vercel link --yes --project ${{ inputs.REPO_NAME }} --token=${{ inputs.VERCEL_TOKEN }}
+    - name: "Remove alias"
+      shell: bash
+      working-directory: ${{ inputs.WORKING_DIRECTORY }}
+      run: |
+        ALIAS="${{ inputs.REPO_NAME }}-${{ github.event.number }}.vercel.app"
+        vercel alias rm "$ALIAS" --yes --token=${{ inputs.VERCEL_TOKEN }} || echo "Alias $ALIAS not found, skipping"
